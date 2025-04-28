@@ -1,18 +1,27 @@
-require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
-const wallpaperRoutes = require('./routes/wallpaperRoutes');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 const app = express();
 
+// Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Routes
+const wallpaperRoutes = require('./routes/wallpaperRoutes');
 app.use('/api/wallpapers', wallpaperRoutes);
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('MongoDB connected');
-    app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
-  })
-  .catch(err => console.log(err));
+// MongoDB Connection
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => console.log('MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
+
+// Listen on dynamic PORT
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
