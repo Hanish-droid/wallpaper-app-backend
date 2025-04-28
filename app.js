@@ -15,11 +15,31 @@ const wallpaperRoutes = require('./routes/wallpaperRoutes');
 app.use('/api/wallpapers', wallpaperRoutes);
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => console.log('MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err));
+async function connectToDatabase() {
+    try {
+      await mongoose.connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+      console.log('MongoDB connected');
+    } catch (error) {
+      console.error('MongoDB connection error:', error);
+      process.exit(1); // Exit the process if connection fails
+    }
+  }
+  
+connectToDatabase();
+
+mongoose.connection.on('connected', () => {
+    console.log('Mongoose connected to the database');
+  });
+  
+  mongoose.connection.on('error', (err) => {
+    console.error('Mongoose connection error:', err);
+  });
+
+mongoose.set('bufferCommands', false);
+
 
 // Listen on dynamic PORT
 const PORT = process.env.PORT || 8080;
